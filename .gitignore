@@ -40,6 +40,7 @@ TestResult.xml
 [Dd]ebugPS/
 [Rr]eleasePS/
 dlldata.c
+[Ll]ib/
 
 # .NET Core
 project.lock.json
