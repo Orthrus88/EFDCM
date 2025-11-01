@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C8C48E3C-68BF-4A39-9FB4-DBDB1ECEADDA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DuckovCoopMod</RootNamespace>
+    <AssemblyName>DuckovCoopMod</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <!-- Optional per-user override for GameManagedDir/LibDir without editing the csproj -->
+  <Import Project="$(MSBuildProjectDirectory)\DuckovCoopMod.user.props" Condition="Exists('$(MSBuildProjectDirectory)\DuckovCoopMod.user.props')" />
+  <PropertyGroup>
+    <!-- Directory for third-party libraries (can be overridden in user.props) -->
+    <LibDir Condition="'$(LibDir)' == ''">$(MSBuildProjectDirectory)\lib</LibDir>
+    <!-- Path to the game's Managed folder (can be overridden in user.props) -->
+    <GameManagedDir Condition="'$(GameManagedDir)' == ''">$(MSBuildProjectDirectory)\GameManaged</GameManagedDir>
+  </PropertyGroup>
+
+  <!-- Default: do not CopyLocal referenced assemblies to bin (we pack via PackMod) -->
+  <ItemDefinitionGroup>
+    <Reference>
+      <Private>false</Private>
+    </Reference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Compile Include="AnimParamInterpolator .cs" />
+    <Compile Include="Anti_Cheat.cs" />
+    <Compile Include="AutoRequestHealthBar.cs" />
+    <Compile Include="HostForceHealthBar.cs" />
+    <Compile Include="HoldVisualBinder.cs" />
+    <Compile Include="Net\NetAiVisibilityGuard.cs" />
+    <Compile Include="Net\NetAiFollower.cs" />
+    <Compile Include="NetTag\NetDestructibleTag.cs" />
+    <Compile Include="NetTag\NetDropTag.cs" />
+    <Compile Include="Main\COOPManager.cs" />
+    <Compile Include="Main\HarmonyFix.cs" />
+    <Compile Include="Main\Mod.TransportHelpers.cs" />
+    <Compile Include="Main\Mod.Types.cs" />
+    <Compile Include="Main\Mod.Grenade.cs" />
+    <Compile Include="Main\Mod.Loot.cs" />
+    <Compile Include="Main\Mod.Scene.cs" />
+    <Compile Include="Main\Mod.UI.cs" />
+    <Compile Include="Main\Mod.Player.cs" />
+    <Compile Include="Main\Mod.PlayerCombat.cs" />
+    <Compile Include="Main\Mod.AI.cs" />
+    <Compile Include="Main\Mod.cs" />
+    <Compile Include="NetTag\NetGrenadeTag.cs" />
+    <Compile Include="Net\NetInterpolator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_BuffLateBinder.cs" />
+    <Compile Include="Net\ITransport.cs" />
+    <Compile Include="Net\LiteNetLibTransport.cs" />
+    <Compile Include="Net\SteamSocketsTransport.cs" />
+    <Compile Include="Steam\SteamManager.cs" />
+    <Compile Include="Steam\SteamLobbyManager.cs" />
+    
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Ak.Wwise.Api.WAAPI" Condition="Exists('$(LibDir)\\Ak.Wwise.Api.WAAPI.dll')"><HintPath>$(LibDir)\\Ak.Wwise.Api.WAAPI.dll</HintPath></Reference>
+    <Reference Include="AK.Wwise.Unity.API" Condition="Exists('$(LibDir)\\AK.Wwise.Unity.API.dll')"><HintPath>$(LibDir)\\AK.Wwise.Unity.API.dll</HintPath></Reference>
+    <Reference Include="AK.Wwise.Unity.API" Condition="Exists('$(LibDir)\\AK.Wwise.Unity.API.dll')"><HintPath>$(LibDir)\\AK.Wwise.Unity.API.dll</HintPath></Reference>
+    <Reference Include="AK.Wwise.Unity.MonoBehaviour" Condition="Exists('$(LibDir)\\AK.Wwise.Unity.MonoBehaviour.dll')"><HintPath>$(LibDir)\\AK.Wwise.Unity.MonoBehaviour.dll</HintPath></Reference>
+    <Reference Include="AK.Wwise.Unity.Timeline" Condition="Exists('$(LibDir)\\AK.Wwise.Unity.Timeline.dll')"><HintPath>$(LibDir)\\AK.Wwise.Unity.Timeline.dll</HintPath></Reference>
+    <Reference Include="ALINE, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\ALINE.dll</HintPath>
+    </Reference>
+    <Reference Include="andywiecko.BurstTriangulator, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\andywiecko.BurstTriangulator.dll</HintPath>
+    </Reference>
+    <Reference Include="Animancer, Version=7.4.2.25, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Animancer.dll</HintPath>
+    </Reference>
+    <Reference Include="Animancer.FSM, Version=7.4.2.25, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Animancer.FSM.dll</HintPath>
+    </Reference>
+    <Reference Include="AstarPathfindingProject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\AstarPathfindingProject.dll</HintPath>
+    </Reference>
+    <Reference Include="BakeryRuntimeAssembly, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\BakeryRuntimeAssembly.dll</HintPath>
+    </Reference>
+    <Reference Include="Bilibili.BDS, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Bilibili.BDS.dll</HintPath>
+    </Reference>
+    <Reference Include="Cinemachine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Cinemachine.dll</HintPath>
+    </Reference>
+    <Reference Include="Clipper2Lib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ddeb3f68c442d6e4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Clipper2Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="com.rlabrecque.steamworks.net, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\com.rlabrecque.steamworks.net.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween.Modules, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\DOTween.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTweenPro, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\DOTweenPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Drawing, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="Eflatun.SceneReference, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Eflatun.SceneReference.dll</HintPath>
+    </Reference>
+    <Reference Include="FMODUnity">
+      <HintPath>$(LibDir)\\FMODUnity.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=2.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ItemStatsSystem, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\ItemStatsSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="LeTai.TranslucentImage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\LeTai.TranslucentImage.dll</HintPath>
+    </Reference>
+    <Reference Include="LeTai.TranslucentImage.Demo, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\LeTai.TranslucentImage.Demo.dll</HintPath>
+    </Reference>
+    <Reference Include="LeTai.TranslucentImage.UniversalRP, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\LeTai.TranslucentImage.UniversalRP.dll</HintPath>
+    </Reference>
+    <Reference Include="LeTai.TrueShadow, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\LeTai.TrueShadow.dll</HintPath>
+    </Reference>
+    <Reference Include="LiteNetLib, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\LiteNetLib.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NodeCanvas, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\NodeCanvas.dll</HintPath>
+    </Reference>
+    <Reference Include="PackageTools, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\PackageTools.dll</HintPath>
+    </Reference>
+    <Reference Include="ParadoxNotion, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\ParadoxNotion.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.Ionic.Zip.Reduced, Version=1.9.1.9000, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugins, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Plugins.dll</HintPath>
+    </Reference>
+    <Reference Include="ShapesSamples, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\ShapesSamples.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.OdinInspector.Attributes, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Sirenix.OdinInspector.Attributes.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Serialization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Sirenix.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Serialization.Config, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Sirenix.Serialization.Config.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Utilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Sirenix.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="SymmetryBreak.TastyGrassShader, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\SymmetryBreak.TastyGrassShader.dll</HintPath>
+    </Reference>
+    <Reference Include="SymmetryBreakStudio.TastyGrassShader.Examples, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\SymmetryBreakStudio.TastyGrassShader.Examples.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="TeamSoda.Duckov.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\TeamSoda.Duckov.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="TeamSoda.Duckov.Utilities, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\TeamSoda.Duckov.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="TeamSoda.MiniLocalizor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\TeamSoda.MiniLocalizor.dll</HintPath>
+    </Reference>
+    <Reference Include="UISplineRenderer, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\UISplineRenderer.dll</HintPath>
+    </Reference>
+    <Reference Include="UniTask, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\UniTask.dll</HintPath>
+    </Reference>
+    <Reference Include="UniTask.Addressables" Condition="Exists('$(LibDir)\\UniTask.Addressables.dll')"><HintPath>$(LibDir)\\UniTask.Addressables.dll</HintPath></Reference>
+    <Reference Include="UniTask.DOTween, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\UniTask.DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="UniTask.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\UniTask.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Burst, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Unity.Burst.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.InputSystem, Version=1.11.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Unity.InputSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.InputSystem.ForUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Unity.InputSystem.ForUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.ResourceManager" Condition="Exists('$(GameManagedDir)\\Unity.ResourceManager.dll')">
+      <HintPath>$(GameManagedDir)\\Unity.ResourceManager.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(LibDir)\\Unity.VisualScripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.AccessibilityModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.AndroidJNIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.ARModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ClothModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.ClusterInputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.ClusterRendererModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ContentLoadModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ContentLoadModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.CrashReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.DirectorModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DSPGraphModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.DSPGraphModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.GameCenterModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.GIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.GridModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.HotReloadModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.LocalizationModule">
+      <HintPath>$(GameManagedDir)\\UnityEngine.LocalizationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ProfilerModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ProfilerModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.ScreenCaptureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameManagedDir)\\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" Condition="Exists('$(GameManagedDir)\\Assembly-CSharp.dll')">
+      <HintPath>$(GameManagedDir)\\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass" Condition="Exists('$(GameManagedDir)\\Assembly-CSharp-firstpass.dll')">
+      <HintPath>$(GameManagedDir)\\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <!-- Produce a minimal mod distribution with only the mod DLL and LiteNetLib.dll -->
+  <Target Name="PackMod" DependsOnTargets="Build">
+    <PropertyGroup>
+      <ModOutputDir>$(MSBuildProjectDirectory)\mod_release</ModOutputDir>
+      <ExpectedDllName>Duckov_Coop_Mod.dll</ExpectedDllName>
+    </PropertyGroup>
+    <ItemGroup>
+      <_ModFiles Include="$(TargetPath)" />
+      <_ModFiles Include="$(LibDir)\LiteNetLib.dll" />
+      <_ModFiles Include="$(LibDir)\0Harmony.dll" />
+    </ItemGroup>
+    <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\info.ini')">
+      <_ModFiles Include="$(MSBuildProjectDirectory)\info.ini" />
+    <Compile Include="Main\Mod.TransportHelpers.cs" />
+    </ItemGroup>
+    <MakeDir Directories="$(ModOutputDir)" />
+    <Copy SourceFiles="@(_ModFiles)" DestinationFolder="$(ModOutputDir)" SkipUnchangedFiles="true" />
+    <!-- Also emit a copy of the mod dll using the loader's expected name -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(ModOutputDir)\$(ExpectedDllName)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
+
+
+
+
+
+
+
+

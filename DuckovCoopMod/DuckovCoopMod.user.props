@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Per-user overrides for library locations.
+    Copy/rename this file as needed and adjust paths below.
+    This file is imported by DuckovCoopMod.csproj if present.
+  -->
+  <PropertyGroup>
+    <!-- Path to your game's Managed folder (Unity .dlls, FMODUnity, etc.) -->
+    <!-- Example: C:\Program Files (x86)\Steam\steamapps\common\Escape From Duckov\Duckov_Data\Managed -->
+    <GameManagedDir>D:\SteamLibrary\steamapps\common\Escape from Duckov\Duckov_Data\Managed</GameManagedDir>
+
+    <!-- Path to third-party libraries (Harmony, DOTween, LiteNetLib, etc.) -->
+    <LibDir>$(MSBuildProjectDirectory)\lib</LibDir>
+  </PropertyGroup>
+</Project>
+
