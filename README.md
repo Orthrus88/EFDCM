@@ -1,7 +1,7 @@
 Escape From Duckov Coop Mod Preview
 ===================================
 
-Escape From Duckov Coop Mod Preview is a multiplayer co-op mod for Escape From Duckov.
+Escape From Duckov Coop Mod is a multiplayer co-op mod for Escape From Duckov.
 
 It enables stable LAN and online co-op gameplay in a game originally designed for single-player, featuring:
 - Player synchronization
@@ -10,15 +10,12 @@ It enables stable LAN and online co-op gameplay in a game originally designed fo
 - Spectator-on-death
 - And more
 
-How to Use
-----------
-- No manual installation or build is required.
-- Subscribe on Steam Workshop:
-  - https://steamcommunity.com/sharedfiles/filedetails/?id=3591341282
-- Launch the game and enable the mod to start playing.
-
 Credits
 -------
+Original Code Base
+- Mr sans
+- InitLoader
+
 Special thanks to contributors:
 - Neko17
 - Prototype-alpha
@@ -36,5 +33,4 @@ This project uses a modified AGPL-3.0 license with additional restrictions:
 
 Contact & Feedback
 ------------------
-Please open Issues or Discussions for bugs and suggestions. This project is in preview; community contributions are welcome.
-
+Please open Issues or Discussions for bugs and suggestions.
