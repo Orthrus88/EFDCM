@@ -1,8 +1,10 @@
 using System;
 using Cysharp.Threading.Tasks;
+using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
+using Duckov.Utilities;
 
 namespace DuckovCoopMod
 {
@@ -77,6 +79,158 @@ namespace DuckovCoopMod
             TransportSendToServer(writer, true);
         }
 
+        private void TryPlayShootAnim(string shooterId)
+        {
+            if (IsSelfId(shooterId)) return;
+            if (!clientRemoteCharacters.TryGetValue(shooterId, out var shooterGo) || !shooterGo) return;
+            var animCtrl = shooterGo.GetComponent<CharacterAnimationControl_MagicBlend>();
+            if (!animCtrl) animCtrl = shooterGo.GetComponentInChildren<CharacterAnimationControl_MagicBlend>(true);
+            if (animCtrl && animCtrl.animator) animCtrl.OnAttack();
+        }
+
+        private void PlayMuzzleFxAndShell(string shooterId, int weaponType, Vector3 muzzlePos, Vector3 finalDir)
+        {
+            try
+            {
+                GameObject shooterGo = null;
+                if (IsSelfId(shooterId))
+                {
+                    var cmSelf = LevelManager.Instance?.MainCharacter?.GetComponent<CharacterMainControl>();
+                    if (cmSelf) shooterGo = cmSelf.gameObject;
+                }
+                else if (!string.IsNullOrEmpty(shooterId) && shooterId.StartsWith("AI:"))
+                {
+                    if (int.TryParse(shooterId.Substring(3), out var aiId))
+                    { if (aiById.TryGetValue(aiId, out var cmc) && cmc) shooterGo = cmc.gameObject; }
+                }
+                else
+                {
+                    if (IsServer)
+                    {
+                        NetPeer foundPeer = null;
+                        foreach (var kv in playerStatuses)
+                        { if (kv.Value != null && kv.Value.EndPoint == shooterId) { foundPeer = kv.Key; break; } }
+                        if (foundPeer != null) remoteCharacters.TryGetValue(foundPeer, out shooterGo);
+                    }
+                    else { clientRemoteCharacters.TryGetValue(shooterId, out shooterGo); }
+                }
+
+                ItemAgent_Gun gun = null; Transform muzzleTf = null;
+                if (!string.IsNullOrEmpty(shooterId))
+                {
+                    if (_gunCacheByShooter.TryGetValue(shooterId, out var cached) && cached.gun)
+                    { gun = cached.gun; muzzleTf = cached.muzzle; }
+                }
+                if (shooterGo && (!gun || !muzzleTf))
+                {
+                    var cmc = shooterGo.GetComponent<CharacterMainControl>();
+                    var model = cmc ? cmc.characterModel : null;
+                    if (!gun && model)
+                    {
+                        if (model.RightHandSocket && !gun) gun = model.RightHandSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                        if (model.LefthandSocket && !gun) gun = model.LefthandSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                        if (model.MeleeWeaponSocket && !gun) gun = model.MeleeWeaponSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                    }
+                    if (!gun) gun = cmc ? (cmc.CurrentHoldItemAgent as ItemAgent_Gun) : null;
+                    if (gun && gun.muzzle && !muzzleTf) muzzleTf = gun.muzzle;
+                    if (!string.IsNullOrEmpty(shooterId) && gun) _gunCacheByShooter[shooterId] = (gun, muzzleTf);
+                }
+
+                GameObject tmp = null;
+                if (!muzzleTf)
+                {
+                    tmp = new GameObject("TempMuzzleFX");
+                    tmp.transform.position = muzzlePos;
+                    tmp.transform.rotation = Quaternion.LookRotation(finalDir, Vector3.up);
+                    muzzleTf = tmp.transform;
+                }
+
+                Client_PlayLocalShotFx(gun, muzzleTf, weaponType);
+                if (tmp) Destroy(tmp, 0.2f);
+
+                if (!IsServer && shooterGo)
+                {
+                    var anim = shooterGo.GetComponentInChildren<CharacterAnimationControl_MagicBlend>(true);
+                    if (anim && anim.animator) anim.OnAttack();
+                }
+            }
+            catch { }
+        }
+
+        private void Client_PlayLocalShotFx(ItemAgent_Gun gun, Transform muzzleTf, int weaponType)
+        {
+            if (!muzzleTf) return;
+
+            GameObject ResolveMuzzlePrefab()
+            {
+                GameObject fxPfb = null;
+                _muzzleFxCacheByWeaponType.TryGetValue(weaponType, out fxPfb);
+                if (!fxPfb && gun && gun.GunItemSetting) fxPfb = gun.GunItemSetting.muzzleFxPfb;
+                if (!fxPfb) fxPfb = defaultMuzzleFx;
+                return fxPfb;
+            }
+
+            void PlayFxGameObject(GameObject go)
+            {
+                if (!go) return;
+                var ps = go.GetComponent<ParticleSystem>();
+                if (ps) { ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); ps.Play(true); }
+                else { go.SetActive(false); go.SetActive(true); }
+            }
+
+            if (gun != null)
+            {
+                if (!_muzzleFxByGun.TryGetValue(gun, out var fxGo) || !fxGo)
+                {
+                    var fxPfb = ResolveMuzzlePrefab();
+                    if (fxPfb)
+                    {
+                        fxGo = Instantiate(fxPfb, muzzleTf, false);
+                        fxGo.transform.localPosition = Vector3.zero;
+                        fxGo.transform.localRotation = Quaternion.identity;
+                        _muzzleFxByGun[gun] = fxGo;
+                    }
+                }
+                PlayFxGameObject(fxGo);
+
+                if (!_shellPsByGun.TryGetValue(gun, out var shellPs) || shellPs == null)
+                {
+                    try { shellPs = (ParticleSystem)FI_ShellParticle?.GetValue(gun); } catch { shellPs = null; }
+                    _shellPsByGun[gun] = shellPs;
+                }
+                try { if (shellPs) shellPs.Emit(1); } catch { }
+
+                TryStartVisualRecoil_NoAlloc(gun);
+                return;
+            }
+
+            var pfb = ResolveMuzzlePrefab();
+            if (pfb)
+            {
+                var tempFx = Instantiate(pfb, muzzleTf, false);
+                tempFx.transform.localPosition = Vector3.zero;
+                tempFx.transform.localRotation = Quaternion.identity;
+                var ps = tempFx.GetComponent<ParticleSystem>();
+                if (ps) ps.Play(true); else { tempFx.SetActive(false); tempFx.SetActive(true); }
+                Destroy(tempFx, 0.5f);
+            }
+        }
+
+        private void TryStartVisualRecoil(ItemAgent_Gun gun)
+        {
+            if (!gun) return;
+            try { Traverse.Create(gun).Method("StartVisualRecoil").GetValue(); return; }
+            catch { }
+            try { Traverse.Create(gun).Field<bool>("_recoilBack").Value = true; } catch { }
+        }
+
+        private void TryStartVisualRecoil_NoAlloc(ItemAgent_Gun gun)
+        {
+            if (!gun) return;
+            try { MI_StartVisualRecoil?.Invoke(gun, null); return; }
+            catch { }
+            try { FI_RecoilBack?.SetValue(gun, true); } catch { }
+        }
         private void HandleFireRequest(NetPeer peer, NetPacketReader r)
         {
             string shooterId = r.GetString();
@@ -212,6 +366,60 @@ namespace DuckovCoopMod
             _hasPayloadHint = false;
         }
 
+        private void HandleFireEvent(NetPacketReader r)
+        {
+            string shooterId = r.GetString();
+            int weaponType = r.GetInt();
+            Vector3 muzzle = r.GetV3cm();
+            Vector3 dir = r.GetDir();
+            float speed = r.GetFloat();
+            float distance = r.GetFloat();
+
+            CharacterMainControl shooterCMC = null;
+            if (IsSelfId(shooterId)) shooterCMC = CharacterMainControl.Main;
+            else if (clientRemoteCharacters.TryGetValue(shooterId, out var shooterGo) && shooterGo)
+                shooterCMC = shooterGo.GetComponent<CharacterMainControl>();
+
+            ItemAgent_Gun gun = null; Transform muzzleTf = null;
+            if (shooterCMC && shooterCMC.characterModel)
+            {
+                gun = shooterCMC.GetGun();
+                var model = shooterCMC.characterModel;
+                if (!gun && model.RightHandSocket) gun = model.RightHandSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                if (!gun && model.LefthandSocket) gun = model.LefthandSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                if (!gun && model.MeleeWeaponSocket) gun = model.MeleeWeaponSocket.GetComponentInChildren<ItemAgent_Gun>(true);
+                if (gun) muzzleTf = gun.muzzle;
+            }
+
+            Vector3 spawnPos = muzzleTf ? muzzleTf.position : muzzle;
+
+            var ctx = new ProjectileContext
+            {
+                direction = dir,
+                speed = speed,
+                distance = distance,
+                halfDamageDistance = distance * 0.5f,
+                firstFrameCheck = true,
+                firstFrameCheckStartPoint = muzzle,
+                team = shooterCMC ? shooterCMC.Team : (LevelManager.Instance?.MainCharacter ? LevelManager.Instance.MainCharacter.Team : Teams.player)
+            };
+
+            bool gotPayload = (r.AvailableBytes > 0) && NetPack_Projectile.TryGetProjectilePayload(r, ref ctx);
+
+            Projectile pfb = null;
+            try { if (gun && gun.GunItemSetting && gun.GunItemSetting.bulletPfb) pfb = gun.GunItemSetting.bulletPfb; } catch { }
+            if (!pfb) pfb = Duckov.Utilities.GameplayDataSettings.Prefabs.DefaultBullet;
+            if (!pfb) return;
+
+            var proj = LevelManager.Instance.BulletPool.GetABullet(pfb);
+            proj.transform.position = spawnPos;
+            proj.transform.rotation = Quaternion.LookRotation(dir, Vector3.up);
+            proj.Init(ctx);
+
+            PlayMuzzleFxAndShell(shooterId, weaponType, spawnPos, dir);
+            TryPlayShootAnim(shooterId);
+        }
+
         private void PlayShootAnimOnServerPeer(NetPeer peer)
         {
             if (!remoteCharacters.TryGetValue(peer, out var who) || !who) return;
@@ -328,8 +536,8 @@ namespace DuckovCoopMod
                 halfDamageDistance = (gun.BulletDistance + 0.4f) * 0.5f,
                 firstFrameCheck = true,
                 firstFrameCheckStartPoint = firstCheckStart,
-                team = (gun.Holder && gun.Holder.IsMainCharacter) ? Teams.player : Teams.enemy
-            };
+                team = (gun.Holder && gun.Holder.IsMainCharacter) ? Teams.player : (LevelManager.Instance?.MainCharacter ? LevelManager.Instance.MainCharacter.Team : Teams.player)
+        };
 
             try
             {
@@ -372,4 +580,3 @@ namespace DuckovCoopMod
         }
     }
 }
-

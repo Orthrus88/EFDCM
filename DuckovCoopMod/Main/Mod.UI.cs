@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Duckov.UI;
 
 namespace DuckovCoopMod
 {
@@ -215,4 +216,3 @@ namespace DuckovCoopMod
         }
     }
 }
-

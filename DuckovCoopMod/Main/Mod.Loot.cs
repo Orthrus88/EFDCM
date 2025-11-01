@@ -1,12 +1,104 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Cysharp.Threading.Tasks;
+using HarmonyLib;
+using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using ItemStatsSystem;
+using ItemStatsSystem.Items;
 
 namespace DuckovCoopMod
 {
     public partial class ModBehaviour
     {
+        // Simple wrappers/utilities used by patches and other partials
+        public void KickLootTimeout(Inventory inv, double seconds) => Server_MuteLoot(inv, (float)seconds);
+        public static bool IsCurrentLootInv(Inventory inv)
+        {
+            try { var lv = Duckov.UI.LootView.Instance; return lv && ReferenceEquals(lv.TargetInventory, inv); } catch { return false; }
+        }
+        public int ComputeLootKey(Transform t) => ComputeLootKeyFromPos(t ? t.position : Vector3.zero);
+        public int ComputeLootKeyFromPos(Vector3 pos)
+        {
+            int sceneIndex = SceneManager.GetActiveScene().buildIndex;
+            int qx = Mathf.RoundToInt(pos.x * 10f);
+            int qy = Mathf.RoundToInt(pos.y * 10f);
+            int qz = Mathf.RoundToInt(pos.z * 10f);
+            string key = $"{sceneIndex}:{qx},{qy},{qz}";
+            return StableHash(key);
+        }
+
+        // Client requests for slot unplugging used by HarmonyFix
+        public void Client_RequestSlotUnplugToBackpack(Inventory srcLoot, Item master, string slotKey, Inventory backpack, int preferPos)
+            => Client_RequestLootSlotUnplug(srcLoot, master, slotKey, true, preferPos);
+        public void Client_RequestLootSlotUnplug(Inventory srcLoot, Item master, string slotKey, bool toBackpack, int preferPos)
+        {
+            if (!networkStarted || IsServer || connectedPeer == null || srcLoot == null || master == null) return;
+            var w = writer; w.Reset();
+            w.Put((byte)Op.LOOT_REQ_SLOT_UNPLUG);
+            PutLootId(w, srcLoot);
+            try { w.Put(master.GetInstanceID()); } catch { w.Put(0); }
+            w.Put(slotKey ?? string.Empty);
+            w.Put(toBackpack);
+            w.Put(preferPos);
+            TransportSendToServer(w, true);
+        }
+
+        // Server handlers (stubs to satisfy references; real logic lives elsewhere)
+        private void Server_HandleLootOpenRequest(NetPeer peer, NetPacketReader r) { /* handled by existing state flow; noop */ }
+        private void Server_HandleLootSlotUnplugRequest(NetPeer peer, NetPacketReader r) { /* implement as needed */ }
+        // implemented in Mod.cs
+
+        // Resolve inventory by ids (lightweight)
+        private Inventory ResolveLootInv(int scene, int posKey, int iid, int lootUid)
+        {
+            Inventory inv = null;
+            if (lootUid >= 0 && IsServer) { _srvLootByUid.TryGetValue(lootUid, out inv); if (inv) return inv; }
+            if (lootUid >= 0 && !IsServer) { _cliLootByUid.TryGetValue(lootUid, out inv); if (inv) return inv; }
+            if (posKey != 0 && TryGetLootInvByKeyEverywhere(posKey, out inv)) return inv;
+            if (iid != 0)
+            {
+                try
+                {
+                    foreach (var b in UnityEngine.Object.FindObjectsOfType<InteractableLootbox>(true))
+                    { if (!b) continue; if (b.GetInstanceID() == iid && (scene < 0 || b.gameObject.scene.buildIndex == scene)) return b.Inventory; }
+                }
+                catch { }
+            }
+            return null;
+        }
+
+        // Minimal item ref IO for interop; can be expanded later
+        private Item ReadItemRef(NetPacketReader r, Inventory fallbackInv)
+        {
+            try
+            {
+                int iid = 0;
+                try { iid = r.GetInt(); } catch { iid = 0; }
+                if (fallbackInv != null)
+                {
+                    var list = fallbackInv.Content;
+                    for (int i = 0; i < list.Count; i++) { var it = list[i]; if (it && (iid == 0 || it.GetInstanceID() == iid)) return it; }
+                }
+                return null;
+            }
+            catch { return null; }
+        }
+        private void WriteItemRef(NetDataWriter w, Inventory inv, Item item)
+        {
+            w.Put(inv ? inv.GetHashCode() : 0);
+            w.Put(item ? item.GetInstanceID() : 0);
+        }
+
+        private System.Collections.IEnumerator ClearLootLoadingTimeout(Inventory inv, float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            try { if (inv != null) inv.Loading = false; } catch { }
+        }
         public void WriteItemSnapshot(NetDataWriter w, Item item)
         {
             w.Put(item.TypeID);

@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using HarmonyLib;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using Duckov.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -71,6 +73,18 @@ namespace DuckovCoopMod
                 }
             }
             return list;
+        }
+
+        private string SerializeFace()
+        {
+            try
+            {
+                var lm = LevelManager.Instance;
+                var data = lm?.CustomFaceManager?.LoadMainCharacterSetting();
+                if (data != null) return JsonUtility.ToJson(data);
+            }
+            catch { }
+            return string.Empty;
         }
 
         private IEnumerable<NetPeer> Server_EnumPeersInSameSceneAsHost()
@@ -448,4 +462,6 @@ namespace DuckovCoopMod
         private string TryGuessActiveSceneId() => sceneTargetId;
     }
 }
+
+
 

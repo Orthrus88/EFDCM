@@ -11,7 +11,7 @@
     <GameManagedDir>D:\SteamLibrary\steamapps\common\Escape from Duckov\Duckov_Data\Managed</GameManagedDir>
 
     <!-- Path to third-party libraries (Harmony, DOTween, LiteNetLib, etc.) -->
-    <LibDir>$(MSBuildProjectDirectory)\lib</LibDir>
+    <LibDir>D:\SteamLibrary\steamapps\common\Escape from Duckov\Duckov_Data\Managed</LibDir>
   </PropertyGroup>
 </Project>
 

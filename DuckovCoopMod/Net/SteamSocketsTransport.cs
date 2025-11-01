@@ -160,7 +160,19 @@ namespace DuckovCoopMod
                 var state = (ESteamNetworkingConnectionState)ev.m_info.m_eState;
                 if (state == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connecting)
                 {
-                    if (IsServer) { #if DEBUG UnityEngine.Debug.Log("[SteamNet] Incoming connection -> accepting"); #endif Accept(conn);} else { #if DEBUG UnityEngine.Debug.Log("[SteamNet] Connecting (client)"); #endif }
+                    if (IsServer)
+                    {
+                        #if DEBUG
+                        UnityEngine.Debug.Log("[SteamNet] Incoming connection -> accepting");
+                        #endif
+                        Accept(conn);
+                    }
+                    else
+                    {
+                        #if DEBUG
+                        UnityEngine.Debug.Log("[SteamNet] Connecting (client)");
+                        #endif
+                    }
                 }
                 else if (state == ESteamNetworkingConnectionState.k_ESteamNetworkingConnectionState_Connected)
                 {
